@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from finch.dsp import grayscale
+from dsp import grayscale
 
 def harris_corners(image):
   i = 2

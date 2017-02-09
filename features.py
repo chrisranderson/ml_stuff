@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-from finch.dsp import grayscale, get_neighbors
-from finch.cv2_util import keypoints_to_points
+from dsp import grayscale, get_neighbors
+from cv2_util import keypoints_to_points
 
 def orb_features(image, keypoints):
   if isinstance(keypoints, np.ndarray):

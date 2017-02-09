@@ -3,6 +3,8 @@ from __future__ import division
 import cv2
 import numpy as np
 
+print('Loading DSP.')
+
 def grayscale(image):
   return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -107,7 +109,5 @@ def fft(data, power_spectrum=False):
 if __name__ == '__main__':
   from finch.viz import scatter
   from finch.datasets import noisy_sin
-
-  print('noisy_sin()', noisy_sin())
 
   scatter(fft(noisy_sin(), power_spectrum=True))

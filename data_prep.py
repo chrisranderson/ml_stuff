@@ -8,12 +8,28 @@ import numpy as np
 def scale(data, lower=0, upper=1):
   return ((upper - lower) * (data - data.min())) / (data.max() - data.min()) + lower
 
+def scale_dataframe(data, excluded_columns):
+  for column in data.columns:
+    if column not in excluded_columns:
+      data[column] = scale(data[column], 0, 1)
+
+  return data
+
 def nominal_to_numeric(array):
   mapper = {name: i for i, name in enumerate(pd.unique(array))}
   return np.array([mapper[name] for name in array])
 
 def nominal_to_one_hot(array):
   return pd.get_dummies(array).as_matrix()
+
+def split(array, first_proportion):
+  split_row = floor(len(array) * first_proportion)
+  return array[:split_row], array[split_row:]
+
+def shuffle_rows(array):
+  copy = np.copy(array)
+  np.random.shuffle(copy)
+  return copy
 
 def n_fold_train_test(dataset, n):
   size = len(dataset)
@@ -28,6 +44,22 @@ def n_fold_train_test(dataset, n):
     train_indices = range(0, test_start) + range(test_end, size)
 
     yield dataset[train_indices], dataset[test_indices]
+
+def batch_generator(data, labels, batch_size=25):
+
+  starting_point = 0
+
+  while starting_point < len(data):
+    data_batch = data[starting_point:starting_point+batch_size]
+    label_batch = labels[starting_point:starting_point+batch_size]
+
+    starting_point += batch_size
+
+    yield data_batch, label_batch
+
+
+if __name__ == '__main__':
+  pass
 
 if __name__ == '__main__':
   pass
