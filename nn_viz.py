@@ -24,7 +24,20 @@ def visualize_parameters(sess,
                          save_images=False, 
                          bottom_text='', 
                          headless=False, 
-                         display='variance'):  
+                         display='variance'):
+  '''
+  Visualize the parameters of a neural network.
+
+  sess: an instance of tf.Session
+  limit (integer > 0): upper bound of how many parameters per variable to show.
+  save_images (boolean): whether or not to save each image in a gifs folder.
+  bottom_text (string): text to add to the bottom of every frame.
+  headless (boolean): if True, don't show the images.
+  display {'variance', 'both', 'normal'}
+    'variance': shows a rolling variance of each individual parameter.
+    'both': stacks 'variance' and 'normal' on top of each other.
+    'normal': shows the parameter values.
+  '''  
 
   def get_parameter_variances():
     sections_over_time.append(sections)
