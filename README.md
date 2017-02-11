@@ -1,6 +1,6 @@
-# finch
+# Finch
 A hodge-podge of code I've used for computer vision and general ML.
 
-## installation
+## Installation
 
     cd finch && ./install.sh

@@ -1,11 +1,11 @@
 import numpy as np
+import tensorflow as tf
 
 ''' Notes
 For TensorBoard: writer = tf.train.SummaryWriter('./logs', graph=tf.get_default_graph())
 '''
 
 def fully_connected_layer(inputs, output_size, scope, nonlinearity=True):
-  import tensorflow as tf # TODO: weird to import this at the beginning of each function.
   xavier = tf.contrib.layers.xavier_initializer
 
   with tf.variable_scope(scope):
@@ -24,9 +24,7 @@ def fully_connected_layer(inputs, output_size, scope, nonlinearity=True):
     return tf.nn.elu(multiplied + bias) if nonlinearity else multiplied + bias
 
 def conv2d(x, shape, scope, stride=None):
-  import tensorflow as tf
   xavier = tf.contrib.layers.xavier_initializer
-
   stride = [1, 1, 1, 1] if stride is None else stride
 
   with tf.variable_scope(scope):
@@ -34,8 +32,6 @@ def conv2d(x, shape, scope, stride=None):
     return tf.nn.conv2d(x, W, strides=stride, padding='VALID')
 
 def flatten_final_conv_layer(batch):
-  import tensorflow as tf
-
   '''
   For converting the final conv layer for use in a FC layer.
   '''

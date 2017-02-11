@@ -5,8 +5,10 @@ from math import floor
 import pandas as pd
 import numpy as np
 
-def scale(data, lower=0, upper=1):
-  return ((upper - lower) * (data - data.min())) / (data.max() - data.min()) + lower
+def scale(data, lower=0, upper=1, data_min=None, data_max=None):
+  data_min = data_min if data_min is not None else data.min()
+  data_max = data_max if data_max is not None else data.max()
+  return ((upper - lower) * (data - data_min)) / (data_max - data_min) + lower
 
 def scale_dataframe(data, excluded_columns):
   for column in data.columns:

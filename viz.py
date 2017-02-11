@@ -49,12 +49,12 @@ def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
   figure = Figure(data=data, layout=layout)
   plotly.offline.plot(figure, filename='plots/' + title + '.html')
 
-def histogram(data, filename):
+def histogram(data, filename='histogram'):
   plotly.offline.plot([
     Histogram(
       x=data,
     )
-  ], filename=filename)
+  ], filename='plots/'+filename+'.html')
 
 def heatmap(data, x=None, y=None):
   plotly.offline.plot([

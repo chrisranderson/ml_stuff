@@ -1,6 +1,5 @@
 import setuptools
 
-
 setuptools.setup(name='finch',
                  version='0.1.0',
                  # description='Python Package Boilerplate',
