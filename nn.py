@@ -38,3 +38,8 @@ def flatten_final_conv_layer(batch):
   batch_shape = batch.get_shape().as_list()[1:]
   size = np.prod(batch_shape)
   return tf.reshape(batch, [-1, size])
+
+def XLA_Session():
+  config = tf.ConfigProto()
+  config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+  return tf.Session(config=config)

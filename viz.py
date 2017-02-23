@@ -2,30 +2,28 @@ import numpy as np
 import plotly
 from plotly.graph_objs import Scatter, Histogram, Heatmap, Layout, Figure, Marker
 
-from datasets import random_set 
-
 COLORS = [ # maximally distinct colors
-    '#FFB300', # Vivid Yellow
-    '#803E75', # Strong Purple
-    '#FF6800', # Vivid Orange
-    '#A6BDD7', # Very Light Blue
-    '#C10020', # Vivid Red
-    '#CEA262', # Grayish Yellow
-    '#817066', # Medium Gray
-    # The following don't work well for people with color blindness
-    '#007D34', # Vivid Green
-    '#F6768E', # Strong Purplish Pink
-    '#00538A', # Strong Blue
-    '#FF7A5C', # Strong Yellowish Pink
-    '#53377A', # Strong Violet
-    '#FF8E00', # Vivid Orange Yellow
-    '#B32851', # Strong Purplish Red
-    '#F4C800', # Vivid Greenish Yellow
-    '#7F180D', # Strong Reddish Brown
-    '#93AA00', # Vivid Yellowish Green
-    '#593315', # Deep Yellowish Brown
-    '#F13A13', # Vivid Reddish Orange
-    '#232C16', # Dark Olive Green
+  '#FFB300', # Vivid Yellow
+  '#803E75', # Strong Purple
+  '#FF6800', # Vivid Orange
+  '#A6BDD7', # Very Light Blue
+  '#C10020', # Vivid Red
+  '#CEA262', # Grayish Yellow
+  '#817066', # Medium Gray
+  # The following don't work well for people with color blindness
+  '#007D34', # Vivid Green
+  '#F6768E', # Strong Purplish Pink
+  '#00538A', # Strong Blue
+  '#FF7A5C', # Strong Yellowish Pink
+  '#53377A', # Strong Violet
+  '#FF8E00', # Vivid Orange Yellow
+  '#B32851', # Strong Purplish Red
+  '#F4C800', # Vivid Greenish Yellow
+  '#7F180D', # Strong Reddish Brown
+  '#93AA00', # Vivid Yellowish Green
+  '#593315', # Deep Yellowish Brown
+  '#F13A13', # Vivid Reddish Orange
+  '#232C16', # Dark Olive Green
 ]
 
 def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
@@ -41,9 +39,8 @@ def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
 
   data = [
     Scatter(x=xs, 
-      y=ys, 
-      mode='lines' if lines else 'markers'
-    )
+            y=ys, 
+            mode='lines' if lines else 'markers')
   ]
 
   figure = Figure(data=data, layout=layout)
@@ -76,8 +73,10 @@ def exploratory_plot(data, filename='exploratory', use_labels=True):
 
   traces = []
   column_count = data.shape[1]
-  figure = plotly.tools.make_subplots(rows=column_count, cols=column_count,
-    shared_yaxes=True, shared_xaxes=True)
+  figure = plotly.tools.make_subplots(rows=column_count, 
+                                      cols=column_count,
+                                      shared_yaxes=True, 
+                                      shared_xaxes=True)
   
   # data = scale_down(data)
   # with_labels = scale_down(with_labels)
@@ -129,4 +128,4 @@ def exploratory_plot(data, filename='exploratory', use_labels=True):
 
   plotly.offline.plot({
     'data': traces
-  }, filename = 'exploratory-range.html')
+  }, filename='exploratory-range.html')
