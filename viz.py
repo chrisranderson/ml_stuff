@@ -1,6 +1,6 @@
 import numpy as np
 import plotly
-from plotly.graph_objs import Scatter, Histogram, Heatmap, Layout, Figure, Marker
+from plotly.graph_objs import Scatter, Histogram, Heatmap, Layout, Figure, Marker, Scatter3d
 
 COLORS = [ # maximally distinct colors
   '#FFB300', # Vivid Yellow
@@ -26,6 +26,16 @@ COLORS = [ # maximally distinct colors
   '#232C16', # Dark Olive Green
 ]
 
+
+def scatter_3d(xs, ys, zs):
+  plotly.offline.plot([Scatter3d(
+    x=xs,
+    y=ys,
+    z=zs,
+    mode='markers'
+  )])
+
+
 def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
   layout = Layout(
     title=title,
@@ -35,7 +45,7 @@ def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
 
   if ys is None:
     ys = xs
-    xs = range(len(xs))
+    xs = list(range(len(xs)))
 
   data = [
     Scatter(x=xs, 

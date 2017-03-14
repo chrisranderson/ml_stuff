@@ -58,18 +58,7 @@ def visualize_parameters(sess,
                          bottom_text='Step: {} || Test accuracy: {}'.format(i, np.mean(test_accuracies)),
                          ignore_patterns=['Batch', 'b:'])
   '''  
-  if variables is not None:
-    variables_already_evaluated = True
-    tf_variables, variables = variables
-    try:
-      shapes = [x.shape for x in variables]
-    except AttributeError as e:
-      print_error('It looks like you have the wrong order for the variables tuple. TensorFlow ops should come first.',
-                  e)
-  else:
-    variables_already_evaluated = False
-    tf_variables = variables
-    shapes = [x.get_shape() for x in variables]
+
 
   def get_filtered_variables(ignore_patterns):
     ignore_patterns = ignore_patterns if ignore_patterns is not None else []
@@ -156,8 +145,19 @@ def visualize_parameters(sess,
   global global_step
   global_step += 1
 
-  if variables is None:
+  if variables is not None:
+    variables_already_evaluated = True
+    tf_variables, variables = variables
+    try:
+      shapes = [x.shape for x in variables]
+    except AttributeError as e:
+      print_error('It looks like you have the wrong order for the variables tuple. TensorFlow ops should come first.',
+                  e)
+  else:
     variables = get_filtered_variables(ignore_patterns)
+    variables_already_evaluated = False
+    tf_variables = variables
+    shapes = [x.get_shape() for x in variables]
 
   display_width = WIDTH // len(variables)
 
