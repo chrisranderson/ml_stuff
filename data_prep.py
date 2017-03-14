@@ -13,7 +13,7 @@ def image_dir_to_np_array(directory):
 def scale(data, lower=0, upper=1, data_min=None, data_max=None):
   data_min = data_min if data_min is not None else data.min()
   data_max = data_max if data_max is not None else data.max()
-  return ((upper - lower) * (data - data_min)) / (data_max - data_min) + lower
+  return np.nan_to_num(((upper - lower) * (data - data_min)) / (data_max - data_min) + lower)
 
 
 def scale_dataframe(data, excluded_columns):

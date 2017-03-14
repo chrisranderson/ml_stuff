@@ -16,8 +16,8 @@ PADDING = 20
 TEXT_SIZE = 0.3
 
 global_step = 0
-global_mins = {}
-global_maxes = {}
+temporal_section_mins = {}
+temporal_section_maxes = {}
 sections_over_time = deque([], 5)
 
 def visualize_parameters(sess, 
@@ -25,9 +25,9 @@ def visualize_parameters(sess,
                          display='variance',
                          headless=False, 
                          ignore_patterns=None,
-                         limit=None, 
+                         parameter_limit=None, 
                          save_images=False, 
-                         variables=None):
+                         vars_and_values=None):
   '''
   Visualize the parameters of a neural network.
 
@@ -39,22 +39,24 @@ def visualize_parameters(sess,
 
   ### Optional
     bottom_text (string): text to add to the bottom of every frame.
-    limit (integer > 0): upper bound of how many parameters per variable to show.
-    save_images (boolean): whether or not to save each image in a gifs folder.
-    headless (boolean): if True, don't show the images.
-    display {'variance', 'both', 'normal'}
+    display {'variance', 'both', 'normal'}:
       'variance': shows a rolling variance of each individual parameter.
       'both': stacks 'variance' and 'normal' on top of each other.
       'normal': shows the parameter values.
-    variables (np arrays, TensorFlow ops): two lists of variables - the first list
-      is the evaluated values, the second list 
+    headless (boolean): if True, don't show the images. Useful with `save_images`.
+    ignore_patterns (list of strings): if one of these strings is in the variable
+      name, it will not be displayed.
+    parameter_limit (integer > 0): upper bound of how many parameters per variable to show.
+    save_images (boolean): whether or not to save each image in a gifs folder.
+    vars_and_values (TensorFlow ops, np arrays): two lists of variables - the first list
+      is the TF ops, the second list are the corresponding np arrays.
 
   ### Example usage:
     variables_to_evaluate = [train_step] + tf.trainable_variables() + [predictions]
     evaluated_variables = sess.run(variables_to_evaluate, feed_dict=feed_dict)[1:]
 
     visualize_parameters(sess, 
-                         variables=(variables_to_evaluate, evaluated_variables),
+                         vars_and_values=(variables_to_evaluate, evaluated_variables),
                          bottom_text='Step: {} || Test accuracy: {}'.format(i, np.mean(test_accuracies)),
                          ignore_patterns=['Batch', 'b:'])
   '''  
@@ -81,19 +83,24 @@ def visualize_parameters(sess,
 
     for name, variance in zip(names, section_variances):
 
-      if name not in global_maxes:
-        global_maxes[name] = variance.max()
-        global_mins[name] = variance.min()
+      if name not in temporal_section_maxes:
+        temporal_section_maxes[name] = variance.max()
+        temporal_section_mins[name] = variance.min()
 
-      if variance.max() > global_maxes[name]:
-        global_maxes[name] = variance.max()
+      if variance.max() > temporal_section_maxes[name]:
+        temporal_section_maxes[name] = variance.max()
 
-      if variance.min() < global_mins[name]:
-        global_mins[name] = variance.min()
+      if variance.min() < temporal_section_mins[name]:
+        temporal_section_mins[name] = variance.min()
 
       variance = scale(variance, 
-                       data_min=global_mins[name] / 5,
-                       data_max=global_maxes[name] / 5)
+                       data_min=temporal_section_mins[name] / 5,
+                       data_max=temporal_section_maxes[name] / 5)
+
+      # band-aid fix for when there is no variance. Hopefully this magic number
+      # is low enough... 
+      if np.abs(temporal_section_maxes[name] - temporal_section_mins[name]) < 1e-10:
+        variance = variance * 0
 
       final_sections.append(variance)
 
@@ -102,9 +109,9 @@ def visualize_parameters(sess,
 
   def get_resized_parameters(display_width):
     if variables_already_evaluated:
-      arrays = [np.ravel(x) for x in variables]
+      arrays = [np.ravel(x) for x in np_arrays]
     else:
-      arrays = [np.ravel(x)[:limit] for x in sess.run(variables)]
+      arrays = [np.ravel(x)[:parameter_limit] for x in sess.run(tf_variables)]
 
     display_width = WIDTH // len(arrays)
 
@@ -145,24 +152,24 @@ def visualize_parameters(sess,
   global global_step
   global_step += 1
 
-  if variables is not None:
+  if vars_and_values is not None:
     variables_already_evaluated = True
-    tf_variables, variables = variables
+    tf_variables, np_arrays = vars_and_values
+
     try:
-      shapes = [x.shape for x in variables]
+      shapes = [x.shape for x in np_arrays]
     except AttributeError as e:
       print_error('It looks like you have the wrong order for the variables tuple. TensorFlow ops should come first.',
                   e)
   else:
-    variables = get_filtered_variables(ignore_patterns)
+    tf_variables = get_filtered_variables(ignore_patterns)
     variables_already_evaluated = False
-    tf_variables = variables
-    shapes = [x.get_shape() for x in variables]
+    shapes = [x.get_shape() for x in tf_variables]
 
-  display_width = WIDTH // len(variables)
+  display_width = WIDTH // len(tf_variables)
 
-  if limit is None:
-    limit = int(WIDTH * HEIGHT / len(variables))
+  if parameter_limit is None:
+    parameter_limit = int(WIDTH * HEIGHT / len(tf_variables))
 
   sections = get_resized_parameters(display_width)
 
@@ -171,8 +178,10 @@ def visualize_parameters(sess,
   elif display == 'both':
     #stack the two on top of each other for each one, then hstack
     variance_sections = get_parameter_variances()
-    sections = [cv2.resize(np.vstack([scale(orig), var]), (display_width, HEIGHT))
-                for orig, var in zip(sections, variance_sections)]
+    sections = [cv2.resize(np.vstack([scale(orig), var]), 
+                           (display_width, HEIGHT))
+                for orig, var 
+                in zip(sections, variance_sections)]
   else:
     sections = [scale(section) for section in sections]
 
@@ -182,7 +191,7 @@ def visualize_parameters(sess,
   add_bottom_text(final_image)
 
   if save_images:
-    cv2.imwrite('gif/'+str(global_step).zfill(5)+'.png', final_image*255)
+    cv2.imwrite('gif/' + str(global_step).zfill(5)+'.png', final_image*255)
 
   if not headless:
     cv2.imshow('Parameters', final_image)
