@@ -26,6 +26,13 @@ COLORS = [ # maximally distinct colors
   '#232C16', # Dark Olive Green
 ]
 
+def hex_to_rgb(value):
+    """Return (red, green, blue) for the color given as #rrggbb."""
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+
+RGB_COLORS = [hex_to_rgb(color) for color in COLORS]
 
 def scatter_3d(xs, ys, zs):
   plotly.offline.plot([Scatter3d(
@@ -36,7 +43,7 @@ def scatter_3d(xs, ys, zs):
   )])
 
 
-def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
+def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False, marker=dict()):
   layout = Layout(
     title=title,
     xaxis=dict(title=xlabel),
@@ -50,18 +57,19 @@ def scatter_plot(xs, ys=None, xlabel='', ylabel='', title='', lines=False):
   data = [
     Scatter(x=xs, 
             y=ys, 
-            mode='lines' if lines else 'markers')
+            mode='lines' if lines else 'markers',
+            marker=marker)
   ]
 
   figure = Figure(data=data, layout=layout)
-  plotly.offline.plot(figure, filename='plots/' + title + '.html')
+  plotly.offline.plot(figure, filename=title + '.html')
 
 def histogram(data, filename='histogram'):
   plotly.offline.plot([
     Histogram(
       x=data,
     )
-  ], filename='plots/'+filename+'.html')
+  ], filename=filename+'.html')
 
 def heatmap(data, x=None, y=None):
   plotly.offline.plot([

@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import pandas as pd
 
-def image_dir_to_np_array(directory):
-  return np.array([cv2.imread(directory + '/' + file) for file in os.listdir(directory)])
+def read_image_dir(directory):
+  return [cv2.imread(directory + '/' + file) for file in os.listdir(directory)]
 
 def scale(data, lower=0, upper=1, data_min=None, data_max=None):
   data_min = data_min if data_min is not None else data.min()
@@ -55,17 +55,13 @@ def n_fold_train_test(dataset, n):
 
     yield dataset[train_indices], dataset[test_indices]
 
-def batch_generator(data, labels, batch_size=25):
+def batch_generator(data, labels=None, batch_size=25):
 
-  starting_point = 0
+    starting_point = 0
 
-  while starting_point < len(data):
-    data_batch = data[starting_point:starting_point+batch_size]
-    label_batch = labels[starting_point:starting_point+batch_size]
-
-    starting_point += batch_size
-
-    yield data_batch, label_batch
+    while starting_point < len(data):
+      yield starting_point, starting_point+batch_size
+      starting_point += batch_size
 
 
 if __name__ == '__main__':

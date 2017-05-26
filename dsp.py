@@ -1,9 +1,8 @@
 from __future__ import division
 
 import cv2
+from imutils import rotate_bound
 import numpy as np
-
-print('Loading DSP.')
 
 def grayscale(image):
   return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -45,12 +44,32 @@ def image_normalize(nparray):
   return output
 
 def rotate_image(image, angle):
-  image_center = tuple(np.array(image.shape)/2)
+  image = image.astype(float)
+  angle = angle % 360
+  # return rotate_bound(image, angle)
+  image_center = tuple(np.array(image.shape)/2)[:2]
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-  result = cv2.warpAffine(image, rot_mat, image.shape, flags=cv2.INTER_LINEAR)
+  result = cv2.warpAffine(image, rot_mat, tuple([image.shape[1], image.shape[0]]), flags=cv2.INTER_LINEAR)
   return result
  
-def get_neighbors(image, x, y):
+def pad_to_square(image):
+  max_dimension = np.max(image.shape)
+
+  padding = []
+
+  for dimension in image.shape[:2]:
+    difference = max_dimension - dimension
+    padding.append([int(difference/2), int(difference/2)])
+
+  if len(image.shape) == 3:
+    padding.append([0, 0])
+    print('padding', padding)
+    return np.pad(image, np.array(padding).astype(int), 'constant')
+  else:
+    return np.pad(image, np.array(padding).astype(int), 'constant')
+
+
+def get_neighbors(image, y, x):
   # starts at top left, goes clockwise
   width = image.shape[1]
   height = image.shape[0]
@@ -59,7 +78,7 @@ def get_neighbors(image, x, y):
     (max(0, y-1), max(0, x-1)),
     (max(0, y-1), x),
     (max(0, y-1), min(width-1, x+1)),
-    (y, min(width-1, x+1)),
+    (y, min(width-1, min(width, x+1))),
     (min(height-1, y+1), min(width-1, x+1)),
     (min(height-1, y+1), x),               
     (min(height-1, y+1), max(0, x-1)),     

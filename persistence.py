@@ -8,6 +8,7 @@ def make_cache_folder():
     os.makedirs(CACHE_FOLDER)
 
 def save_pickle(data, name):
+  make_cache_folder()
   joblib.dump(data, CACHE_FOLDER + '/' + name + '.pkl')
 
 def load_pickle(name):
